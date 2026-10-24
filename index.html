@@ -146,7 +146,14 @@ h3{font-size:15px;font-weight:700}
 .tabs button{background:#fff;border:1.5px solid var(--line2)}
 .tabs button.on{background:var(--red);color:#fff;border-color:var(--red)}
 .item{background:#fff;border-radius:14px;padding:12px;display:grid;gap:8px;box-shadow:0 1px 2px rgba(29,11,18,.05)}
-.item .hd{display:flex;align-items:center;gap:8px}
+.item .hd{display:flex;align-items:center;gap:8px;cursor:pointer;min-height:32px}
+.item.folded{padding:8px 12px}
+.item .sum{display:flex;align-items:center;gap:10px;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.item .sum b{overflow:hidden;text-overflow:ellipsis}
+.item .thumb{width:36px;height:36px;border-radius:8px;object-fit:cover;flex:none;display:inline-grid;place-items:center;background:var(--pink2);color:var(--red2);font-weight:800}
+.item .chev{color:var(--muted);font-size:12px;width:16px;text-align:center}
+.item.open .hd{border-bottom:1px solid var(--line2);padding-bottom:8px}
+.items{grid-template-columns:1fr!important}
 .item .hd .no{font-family:var(--display);color:var(--red);font-size:13px;width:28px}
 .item .hd .sp{flex:1}
 .item input[type=text]{width:100%}
@@ -169,6 +176,11 @@ h3{font-size:15px;font-weight:700}
 .sect h4{margin:0;font-family:var(--display);font-size:14px}
 .sect p{margin:0;color:var(--muted);font-size:13px}
 .setupGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.teamRow{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:8px 10px;border-radius:12px;background:#fff;box-shadow:inset 6px 0 0 var(--tc,#999)}
+.teamRow .swatches{padding-left:6px}
+.teamRow input[type=text]{font-weight:800}
+.setup .cfgTable td:first-child{width:28px}
+.setup .cfgTable input[type=number]{width:64px}
 .teamEdit{display:flex;flex-direction:column;gap:8px;padding:10px 12px;border-radius:12px;background:#fff;box-shadow:inset 6px 0 0 var(--tc,#999),0 1px 2px rgba(29,11,18,.05)}
 .teamEdit .nm{display:flex;gap:6px;align-items:center;padding-left:6px}
 .teamEdit input[type=text]{flex:1;min-width:0;font-weight:800}
@@ -391,14 +403,22 @@ const DEFAULT_CONTENT = {
   descubrilo: [
     { respuesta: "Titanic", pistas: ["Costó más plata que el barco real en el que me inspiré.", "Celine Dion no quería grabar mi canción y la terminó haciendo en una sola toma.", "Un dibujo, una puerta flotando y una discusión que lleva 25 años."] },
     { respuesta: "Shakira", pistas: ["Mi primer disco salió cuando tenía 13 años y casi nadie lo compró.", "Puse a bailar un Mundial entero con un «waka waka».", "Las mujeres ya no lloran: facturan."] },
-    { respuesta: "Las Vegas", pistas: ["En mis casinos no hay relojes ni ventanas, a propósito.", "Tengo una Torre Eiffel, una pirámide y una Venecia, todas truchas.", "Lo que pasa acá, se queda acá."] },
-    { respuesta: "Tini Stoessel", pistas: ["Mi papá produce televisión y mi primer papel fue chiquito, en Patito Feo.", "Salí con un futbolista campeón del mundo y la ruptura fue tema nacional.", "Antes de ser Tini, el mundo me conoció como Violetta."] },
     { respuesta: "Friends", pistas: ["Mi café favorito no existe: es un set de Burbank.", "Un mono, un pato y un pollo fueron personajes míos.", "Estábamos en un break."] },
     { respuesta: "Bridgerton", pistas: ["Mis bailes suenan a Ariana Grande y Billie Eilish, pero en versión cuarteto de cuerdas.", "Soy una serie de época producida por Shonda Rhimes.", "Lady Whistledown lo cuenta todo."] },
     { respuesta: "Dirty Dancing", pistas: ["Mis protagonistas se llevaban pésimo mientras me filmaban.", "La escena del lago se grabó en octubre, con el agua helada.", "Nadie pone a Baby en un rincón."] },
     { respuesta: "Pretty Woman", pistas: ["Mi guion original era un drama oscuro que se llamaba 3000.", "Un collar, un estuche que se cierra de golpe y una carcajada que no estaba en el guion.", "Richard Gere, Julia Roberts y una tarjeta de crédito en Rodeo Drive."] },
     { respuesta: "Beyoncé", pistas: ["Mi nombre es el apellido de soltera de mi mamá.", "Tengo más Grammys que cualquier otra persona en la historia.", "Si te gustaba, tenías que ponerle un anillo."] },
-    { respuesta: "Taylor Swift", pistas: ["Empecé cantando country en Nashville y firmé mi primer contrato a los 14.", "Regrabé todos mis discos para ser dueña de mis propias canciones.", "Mi gira Eras rompió todos los récords y mi novio juega al fútbol americano."] }
+    { respuesta: "Taylor Swift", pistas: ["Empecé cantando country en Nashville y firmé mi primer contrato a los 14.", "Regrabé todos mis discos para ser dueña de mis propias canciones.", "Mi gira Eras rompió todos los récords y mi novio juega al fútbol americano."] },
+    { respuesta: "Las Vegas", pistas: ["En mis casinos no hay relojes ni ventanas, a propósito.", "Tengo una Torre Eiffel, una pirámide y una Venecia, todas truchas.", "Lo que pasa acá, se queda acá."] },
+    { respuesta: "Tini Stoessel", pistas: ["Mi papá produce televisión y mi primer papel fue chiquito, en Patito Feo.", "Salí con un futbolista campeón del mundo y la ruptura fue tema nacional.", "Antes de ser Tini, el mundo me conoció como Violetta."] },
+    { respuesta: "Lali", pistas: ["Arranqué en Rincón de Luz y Chiquititas antes de cumplir 12.", "Fui jurado de La Voz y canté con la Selección en el Monumental.", "Disciplina, y un apellido que casi nadie usa: Espósito."] },
+    { respuesta: "Bizarrap", pistas: ["Casi nunca me ven la cara: gorra y anteojos, siempre.", "Mi estudio es una pieza con luces de colores y un cartel con mi nombre.", "BZRP Music Sessions, y la 53 fue la de Shakira."] },
+    { respuesta: "Casados con hijos", pistas: ["Soy una adaptación argentina de una serie yanqui, y la superé en fama.", "Pepe, Moni, Paola, Coqui y Dardo.", "Mi vuelta al teatro en 2023 agotó funciones durante meses."] },
+    { respuesta: "Gran Hermano", pistas: ["Empecé en Holanda en 1999 y acá llegué en 2001.", "Una casa, cámaras las 24 horas y una voz que nunca se ve.", "Marcelo Corazza, Cristian U, Furia y Juliana Scaglione salieron de mí."] },
+    { respuesta: "Fito Páez", pistas: ["Soy rosarino y mi disco más vendido tiene un amor después de otro.", "Una serie de Netflix contó mi vida con un actor que no se me parece tanto.", "Giros, Ciudad de pobres corazones y Mariposa Tecknicolor."] },
+    { respuesta: "Susana Giménez", pistas: ["Mi frase más famosa es sobre un shock.", "Fui la diva de los teléfonos y vivo en Punta del Este.", "Empecé mi carrera con una publicidad de jabón en los 60."] },
+    { respuesta: "Mar del Plata", pistas: ["Tengo un lobo marino de cemento que todos se sacan en foto.", "Mis alfajores vienen en caja y se compran por kilo.", "La Feliz."] },
+    { respuesta: "El fernet", pistas: ["Soy italiano de origen, pero Argentina toma el 75 % de mi producción mundial.", "Mi receta tiene 27 hierbas y nadie la conoce entera.", "Con coca, en vaso cortado, y mejor si es cordobés el que lo sirve."] }
   ],
   queesesto: [{"respuesta": "Licha Martínez", "image": ""}, {"respuesta": "Cuti Romero", "image": ""}, {"respuesta": "Dibu Martínez", "image": ""}, {"respuesta": "Julián Álvarez", "image": ""}, {"respuesta": "Enzo Fernández", "image": ""}, {"respuesta": "Peter Lanzani", "image": ""}, {"respuesta": "Nico Furtado", "image": ""}, {"respuesta": "Benjamín Vicuña", "image": ""}, {"respuesta": "David Beckham", "image": ""}, {"respuesta": "Jacob Elordi", "image": ""}, {"respuesta": "Brad Pitt", "image": ""}, {"respuesta": "Pedro Pascal", "image": ""}, {"respuesta": "Henry Cavill", "image": ""}, {"respuesta": "Chris Hemsworth", "image": ""}, {"respuesta": "Timothée Chalamet", "image": ""}, {"respuesta": "Harry Styles", "image": ""}, {"respuesta": "Michael B. Jordan", "image": ""}, {"respuesta": "Ryan Gosling", "image": ""}, {"respuesta": "Bad Bunny", "image": ""}, {"respuesta": "Jason Momoa", "image": ""}],
   emojis: [
@@ -431,7 +451,16 @@ const DEFAULT_CONTENT = {
     { emojis: "🤖 🌱 🚀 🗑️", respuesta: "WALL-E", acepta: [] },
     { emojis: "🧞‍♂️ 🪔 🐒 🧕", respuesta: "Aladdín", acepta: ["Aladdin"] },
     { emojis: "🧜‍♀️ 🦀 🔱 🐟", respuesta: "La sirenita", acepta: [] },
-    { emojis: "🏴‍☠️ 🧭 🦜 🍾", respuesta: "Piratas del Caribe", acepta: [] }
+    { emojis: "🏴‍☠️ 🧭 🦜 🍾", respuesta: "Piratas del Caribe", acepta: [] },
+    { emojis: "9️⃣ 👸 💵 🎭", respuesta: "Nueve reinas", acepta: [] },
+    { emojis: "👁️ 🔒 🚂 📔", respuesta: "El secreto de sus ojos", acepta: [] },
+    { emojis: "🧨 ✈️ 🚗 👰", respuesta: "Relatos salvajes", acepta: [] },
+    { emojis: "👵 🥘 🏠 😂", respuesta: "Esperando la carroza", acepta: [] },
+    { emojis: "🏦 💰 🕳️ 🇦🇷", respuesta: "El robo del siglo", acepta: [] },
+    { emojis: "⚽ 🧸 🤖 🏟️", respuesta: "Metegol", acepta: [] },
+    { emojis: "🦁 ❤️ 👩‍⚖️ 📏", respuesta: "Corazón de león", acepta: [] },
+    { emojis: "👩 🎒 🚶‍♀️ 💔", respuesta: "Un novio para mi mujer", acepta: [] },
+    { emojis: "🧵 ❤️ ✈️ 🇦🇷", respuesta: "El hilo rojo", acepta: [] }
   ],
   chongos: true,
   final: [
@@ -515,7 +544,7 @@ function initialState(){
            history:[], flash:null, winner:null, started:false, tb:0, order:{} };
 }
 function clone(o){ return JSON.parse(JSON.stringify(o)); }
-let S = null, undoStack = [], bc = null, role = "panel", lastHB = 0, peerHB = 0, fixMode = false, adminOpen = false;
+let S = null, undoStack = [], bc = null, role = "panel", lastHB = 0, peerHB = 0, fixMode = false, adminOpen = false, adminBackup = false, openItem = null;
 
 function migrate(s){
   const c=s.config; if(!c) return s;
@@ -926,12 +955,12 @@ function panelHTML(){
     <div class="main">
       <div class="stack left" style="min-width:0">
         <div class="preview"><span class="previewLabel">Proyector</span><div style="position:absolute;inset:0">${stageHTML(S)}</div></div>
-        <div class="card stack">
+        ${S.phase==='setup'?'':`<div class="card stack">
           <div class="row between"><span class="sec">Puntajes</span><span class="muted" style="font-size:12px">−1 / +1 ajustan · tocá el número para escribirlo</span></div>
           <div class="scoreRow">${teams().map(t=>`<div class="teamChip ${currentTurn()===t.id?'turn':''}" style="${tstyle(t)}"><span class="n">${esc(t.name)}</span>
             <span class="adj"><button onclick="addScore('${t.id}',-1)" title="Restar 1">−1</button></span><span class="s" onclick="promptScore('${t.id}')">${S.scores[t.id]||0}</span><span class="adj"><button onclick="addScore('${t.id}',1)" title="Sumar 1">+1</button></span></div>`).join("")}</div>
           <div class="last"><span class="sec">Última acción</span><span>${last?esc(last.slice(8)):'—'}</span><button class="small ghost" onclick="undo()" ${undoStack.length?'':'disabled'}>↶ Deshacer <kbd>Z</kbd></button><button class="link small" onclick="this.nextElementSibling.classList.toggle('hidden')">historial</button><div class="hist hidden" style="flex-basis:100%">${S.history.slice(0,25).map(h=>`<div>${esc(h)}</div>`).join("")||'—'}</div></div>
-        </div>
+        </div>`}
       </div>
       <div class="controls">${controlsHTML(k)}</div>
     </div>
@@ -990,23 +1019,22 @@ function controlsHTML(k){
   if(k==="picapica") return pcControls();
   return chControls(k);
 }
+function teamRowHTML(t,i,removable){
+  return `<div class="teamRow" style="${tstyle(t)}"><div class="swatches">${TEAM_COLORS.map((col,j)=>`<button class="${t.color.toLowerCase()===col?'sel':''}" style="background:${col}" title="${TEAM_COLOR_NAMES[j]}" onclick="setTeam(${i},'color','${col}')"></button>`).join("")}<label title="Otro color"><input type="color" value="${t.color}" oninput="setTeam(${i},'color',this.value)"></label></div><input type="text" id="tn${i}" value="${esc(t.name)}" onchange="setTeam(${i},'name',this.value)" maxlength="24" placeholder="Nombre del equipo">${removable?`<button class="small ghost" title="Quitar equipo" onclick="removeTeam(${i})">✕</button>`:'<span style="width:34px"></span>'}</div>`;
+}
 function setupHTML(){
   const c=S.config;
-  return `<div class="card stack">
-    <div class="row between"><h3>Preparación</h3><button class="primary" onclick="startShow()">🎬 Empezar el show</button></div>
-    <div class="sec">Equipos <span style="font-weight:600;text-transform:none;letter-spacing:0">· de 2 a 4</span></div>
-    <div class="stack">${c.teams.map((t,i)=>teamEditHTML(t,i,c.teams.length>2)).join("")}${c.teams.length<4?`<button class="small ghost" onclick="addTeam()">+ Agregar equipo</button>`:''}</div>
-    <div class="sec" style="margin-top:6px">Juegos de la noche</div>
-    <div class="stack" style="gap:6px">${Object.keys(GAMES).map(g=>`<div class="gameRow ${c.order.includes(g)?'':'off'}"><label class="chk" style="min-width:0"><input type="checkbox" ${c.order.includes(g)?'checked':''} onchange="toggleGame('${g}',this.checked)"><span><span class="nm">${esc(GAMES[g].name)}</span><br><span class="d">${esc(GAMES[g].desc)}</span></span></label>
-        <label class="f">seg.<input type="number" min="5" max="180" value="${c.games[g].seconds}" onchange="setCfg('${g}','seconds',+this.value)"></label>
-        <label class="f">${g==='picapica'?'tarjetas x equipo':'consignas'}<input type="number" min="1" max="${g==='picapica'?10:S.content[g].length}" value="${g==='picapica'?c.games[g].cards:c.games[g].items}" onchange="setCfg('${g}','${g==='picapica'?'cards':'items'}',+this.value)"></label></div>`).join("")}</div>
-    <div class="row"><label class="chk"><input type="checkbox" ${c.shuffle?'checked':''} onchange="commit(null,s=>{s.config.shuffle=this.checked},{noUndo:true})">Consignas en orden aleatorio</label><span style="flex:1"></span><button class="small ghost" onclick="openModal('contenido')">Ver y editar preguntas →</button></div>
-    <p class="muted" style="font-size:12px;margin:0">Dura unos ${estimate()} minutos con esta configuración. Puntos y rebotes: en Configuración.</p>
-    <div class="sec" style="margin-top:6px">Foto de Agustina</div>
-    <div class="row"><img src="${faceSrc()}" alt="" style="height:56px;width:auto"><span class="muted" style="font-size:12px">${c.cover?'Foto propia cargada':'La oficial del show, incorporada en la app'}</span>
-      <label class="filebtn">Usar otra<input type="file" accept="image/*" class="hidden" onchange="loadCover(this.files[0])"></label>${c.cover?`<button class="small danger" onclick="commit('Vuelve a la foto oficial',s=>{s.config.cover=null})">Volver a la oficial</button>`:''}</div>
-    <button class="primary xl" style="margin-top:6px" onclick="startShow()">🎬 Empezar el show</button>
-    ${S.started?`<p class="muted" style="font-size:12px;margin:0">Ojo: «Empezar el show» pone los puntajes en cero.</p><button class="ghost" onclick="commit('Retoma la partida',s=>{s.phase='lobby'})">↩ Retomar la partida guardada</button>`:''}
+  return `<div class="card stack setup">
+    <div><h3>Preparación</h3><p class="muted" style="margin:4px 0 0">Equipos, juegos y tiempos. Todo se puede cambiar después desde Configuración.</p></div>
+    <div><div class="sec" style="margin-bottom:6px">Equipos</div><div class="stack" style="gap:6px">${c.teams.map((t,i)=>teamRowHTML(t,i,c.teams.length>2)).join("")}</div>${c.teams.length<4?`<button class="link small" onclick="addTeam()">+ Agregar equipo</button>`:''}</div>
+    <div><div class="sec" style="margin-bottom:6px">Juegos de la noche</div>
+      <table class="cfgTable"><thead><tr><th></th><th>Juego</th><th>Segundos</th><th>Cantidad</th></tr></thead><tbody>
+      ${Object.keys(GAMES).map(g=>`<tr class="${c.order.includes(g)?'':'off'}"><td><input type="checkbox" ${c.order.includes(g)?'checked':''} onchange="toggleGame('${g}',this.checked)"></td><td><b>${esc(GAMES[g].name)}</b><br><span class="muted">${esc(GAMES[g].desc)}</span></td>
+        <td><input type="number" min="5" max="180" value="${c.games[g].seconds}" onchange="setCfg('${g}','seconds',+this.value)"></td>
+        <td><input type="number" min="1" max="${g==='picapica'?10:Math.max(1,(g==='queesesto'?S.content[g].filter(x=>x.image).length:S.content[g].length))}" value="${g==='picapica'?c.games[g].cards:c.games[g].items}" onchange="setCfg('${g}','${g==='picapica'?'cards':'items'}',+this.value)"> <span class="muted">${g==='picapica'?'tarjetas por equipo':g==='queesesto'?`de ${S.content[g].filter(x=>x.image).length} con foto`:`de ${S.content[g].length}`}</span></td></tr>`).join("")}</tbody></table></div>
+    <div class="row between"><label class="chk"><input type="checkbox" ${c.shuffle?'checked':''} onchange="commit(null,s=>{s.config.shuffle=this.checked},{noUndo:true})">Consignas en orden aleatorio</label><span class="muted" style="font-size:13px">Dura unos ${estimate()} minutos</span><button class="small ghost" onclick="openModal('contenido')">Ver y editar preguntas →</button></div>
+    <button class="primary xl" onclick="startShow()">🎬 Empezar el show</button>
+    ${S.started?`<button class="ghost" onclick="commit('Retoma la partida',s=>{s.phase='lobby'})">↩ Retomar la partida guardada (sin poner los puntajes en cero)</button>`:''}
   </div>`;
 }
 function estimate(){ const c=S.config; let m=5; c.order.forEach(g=>{ const n = g==='picapica'? c.games[g].cards*c.teams.length : c.games[g].items; m += n*(c.games[g].seconds+25)/60; }); return Math.round(m+4); }
@@ -1076,20 +1104,20 @@ function closeModal(){ modal=null; render(); }
 function modalHTML(m){
   let inner="", narrow=false;
   if(m.type==="score"){ narrow=true; const t=team(m.id); inner=`<h3>Puntaje de ${esc(t.name)}</h3><div class="row" style="margin-top:10px"><input type="number" id="scoreIn" value="${S.scores[m.id]||0}" style="width:120px"><button class="primary" onclick="setScore('${m.id}',+document.getElementById('scoreIn').value);closeModal()">Fijar</button></div>`; }
-  if(m.type==="proyector"){ narrow=true; inner=`<h3>Proyector en una segunda pantalla</h3>
-    <ol style="line-height:1.7">
-      <li>Poné la compu en <b>escritorio extendido</b> (no duplicado).</li>
-      <li>Abrí esta misma página en <b>otra ventana del navegador</b> y agregale <code>#proyector</code> al final de la dirección. Llevá esa ventana al proyector y ponela en pantalla completa (F11).</li>
-      <li>Esta ventana queda en la notebook como panel de control. El punto verde confirma que el proyector recibe el estado.</li>
-    </ol>
-    <p class="muted">La sincronización es local: ambas ventanas tienen que estar en el <b>mismo navegador y perfil</b>. No pasa por ningún servidor.</p>
-    <div class="row"><button onclick="location.hash='proyector';boot()">Convertir esta ventana en proyector</button></div>
-    <h3 style="margin-top:18px">Plan B: una sola pantalla</h3>
-    <p class="muted">Si solo hay pantalla duplicada, el público ve el panel. En este modo las respuestas quedan <b>borrosas</b> y solo se ven mientras pasás el mouse por encima. Conviene además tener la hoja de respuestas impresa (Juegos y preguntas → Copiar hoja de respuestas).</p>
-    <label class="chk"><input type="checkbox" ${S.config.singleScreen?'checked':''} onchange="commit(null,s=>{s.config.singleScreen=this.checked},{noUndo:true})"> Activar modo una pantalla</label>`; }
+  if(m.type==="proyector"){ narrow=true; const conn=Date.now()-peerHB<6000; inner=`<h3>Proyector</h3>
+    <div class="bar" style="margin:10px 0"><span class="dot ${conn?'on':''}"></span><b>${conn?'Conectado: el proyector está recibiendo el show.':'Todavía no hay una ventana de proyector abierta.'}</b></div>
+    <div class="stack">
+      <div class="sect"><h4>Dos pantallas (recomendado)</h4>
+        <ol style="margin:0;padding-left:20px;line-height:1.6"><li>Compu en <b>escritorio extendido</b> (no duplicado).</li><li>Abrí esta misma página en otra ventana y agregale <code>#proyector</code> al final de la dirección.</li><li>Llevá esa ventana al proyector y ponela en pantalla completa (F11). Esta queda como panel.</li></ol>
+        <p>Las dos ventanas tienen que estar en el mismo navegador. No usa internet.</p>
+        <div class="row"><button onclick="copyText(location.href.split('#')[0]+'#proyector')">📋 Copiar dirección del proyector</button><button class="ghost" onclick="location.hash='proyector';boot()">Convertir esta ventana en proyector</button></div></div>
+      <div class="sect"><h4>Una sola pantalla (plan B)</h4><p>Si solo podés duplicar la pantalla, el público ve el panel. Con esto las respuestas quedan borrosas hasta que pasás el mouse. Tené la hoja de respuestas impresa (Juegos y preguntas → Copiar hoja).</p>
+        <label class="chk"><input type="checkbox" ${S.config.singleScreen?'checked':''} onchange="commit(null,s=>{s.config.singleScreen=this.checked},{noUndo:true})"> Respuestas borrosas en el panel</label></div>
+    </div>`; }
   if(m.type==="config"){ const c=S.config; const ptsStr=g=>Array.isArray(c.games[g].pts)?c.games[g].pts.join(', '):c.games[g].pts; inner=`<h3>Configuración</h3><p class="muted">Se puede cambiar en cualquier momento; el progreso no se pierde.</p>
     <div class="cfgGrid">
-      <div class="sect"><h4>Equipos</h4>${c.teams.map((t,i)=>teamEditHTML(t,i,c.teams.length>2)).join("")}${c.teams.length<4?`<button class="small ghost" onclick="addTeam()">+ Agregar equipo</button>`:''}</div>
+      <div class="stack"><div class="sect"><h4>Equipos</h4>${c.teams.map((t,i)=>teamRowHTML(t,i,c.teams.length>2)).join("")}${c.teams.length<4?`<button class="small ghost" onclick="addTeam()">+ Agregar equipo</button>`:''}</div>
+      <div class="sect"><h4>Foto de Agustina</h4><p>Portada, encabezados, fin de ronda y final.</p><div class="row"><img src="${faceSrc()}" alt="" style="height:64px;width:auto"><span class="muted" style="font-size:12px">${c.cover?'Foto propia':'La oficial del show'}</span><label class="filebtn">Usar otra<input type="file" accept="image/*" class="hidden" onchange="loadCover(this.files[0])"></label>${c.cover?`<button class="small ghost" onclick="commit('Vuelve a la foto oficial',s=>{s.config.cover=null})">Volver a la oficial</button>`:''}</div></div></div>
       <div class="sect"><h4>Juegos</h4><p>Segundos por consigna, puntos y si la consigna rebota al otro equipo cuando fallan.</p>
         <table class="cfgTable"><thead><tr><th>Juego</th><th>Segundos</th><th>Puntos</th><th>Rebote</th></tr></thead><tbody>
         ${Object.keys(GAMES).map(g=>`<tr class="${c.order.includes(g)?'':'off'}"><td><b>${esc(GAMES[g].name)}</b><br><span class="muted">${g==='picapica'?'por palabra':g==='descubrilo'?'por pista: 1ª, 2ª, 3ª':g==='queesesto'?'por etapa: 1ª a 4ª':'por acierto'}</span></td>
@@ -1105,16 +1133,16 @@ function modalHTML(m){
   if(m.type==="contenido"){ inner=contentEditorHTML(m.tab||'picapica'); }
   if(m.type==="guardar"){ narrow=true; const sc=teams().map(t=>`${esc(t.name)} ${S.scores[t.id]||0}`).join(' · '); const where = S.phase==='setup'?'En preparación':S.phase==='final'?'Terminada':`Ronda ${S.gi+1}: ${esc(GAMES[curKey()]?GAMES[curKey()].name:'')}`;
     inner=`<h3>Partida</h3>
-    <div class="bar" style="margin:10px 0"><div><div class="sec">Ahora</div><div style="font-weight:800">${where}</div></div><div><div class="sec">Puntajes</div><div style="font-weight:800">${sc}</div></div><div style="flex:1"></div><div class="muted" style="font-size:12px">Se guarda sola en este navegador después de cada acción.</div></div>
+    <div class="bar" style="margin:10px 0"><div><div class="sec">Ahora</div><div style="font-weight:800">${where}</div></div><div><div class="sec">Puntajes</div><div style="font-weight:800">${sc}</div></div><div style="flex:1"></div><div class="muted" style="font-size:12px">Se guarda sola en este navegador.</div></div>
     <div class="stack">
-      <div class="sect"><h4>Guardar una copia</h4><p>Equipos, puntajes, progreso, configuración, preguntas y fotos. Guardá una antes del evento y otra después de probar.</p>
-        <div class="row"><button class="primary" onclick="downloadState()">⬇ Descargar archivo</button><button onclick="copyText(JSON.stringify(S))">📋 Copiar al portapapeles</button></div><p id="dlmsg"></p></div>
-      <div class="sect"><h4>Cargar una copia</h4><p>Reemplaza lo que hay en este navegador. Si te arrepentís, Deshacer (Z) vuelve atrás.</p>
-        <div class="row"><label class="filebtn">Elegir archivo…<input type="file" accept="application/json,.json" class="hidden" onchange="importFile(this.files[0])"></label><span class="muted" style="font-size:12px">o pegá el texto copiado:</span></div>
-        <textarea id="sjson" placeholder="Pegá acá la copia…" style="min-height:70px"></textarea>
-        <div class="row"><button onclick="importText(document.getElementById('sjson').value)">Cargar desde el texto</button></div></div>
-      <div class="sect"><h4 style="color:var(--red)">Empezar de cero</h4><p>Puntajes en cero y todos los juegos sin empezar. Las preguntas, las fotos y los equipos se conservan. Para reiniciar un solo juego, usá ↺ en el menú de juegos.</p>
+      <div class="sect"><h4>Empezar de cero</h4><p>Puntajes en cero y todos los juegos sin empezar. Equipos, preguntas y fotos se conservan. Para un solo juego, usá ↺ en el menú de juegos.</p>
         <div class="row">${confirmKey==='__all'?`<span>¿Seguro? No se puede deshacer.</span><button class="danger" onclick="resetAll()">Sí, empezar de cero</button><button class="ghost" onclick="confirmKey=null;render()">No</button>`:`<button class="danger" onclick="confirmKey='__all';render()">Empezar de cero…</button>`}</div></div>
+      <div class="sect"><h4>Restaurar las preguntas originales</h4><p>Vuelve al banco de preguntas que viene con la app (incluye las últimas incorporadas). Los chongos con foto que ya cargaste se conservan.</p>
+        <div class="row">${confirmKey==='__content'?`<span>Se pierden las preguntas que editaste vos.</span><button class="danger" onclick="restoreContent()">Sí, restaurar</button><button class="ghost" onclick="confirmKey=null;render()">No</button>`:`<button onclick="confirmKey='__content';render()">Restaurar preguntas…</button>`}</div></div>
+      <button class="link small" style="justify-self:start" onclick="adminBackup=!adminBackup;render()">${adminBackup?'Ocultar copia de seguridad ▴':'Copia de seguridad (avanzado) ▾'}</button>
+      ${adminBackup?`<div class="sect"><h4>Copia de seguridad</h4><p>Para llevar la partida a otra compu o guardar un respaldo antes del evento.</p>
+        <div class="row"><button onclick="downloadState()">⬇ Descargar archivo</button><button onclick="copyText(JSON.stringify(S))">📋 Copiar al portapapeles</button><label class="filebtn">Cargar archivo…<input type="file" accept="application/json,.json" class="hidden" onchange="importFile(this.files[0])"></label></div><p id="dlmsg"></p>
+        <textarea id="sjson" placeholder="O pegá acá una copia y cargala…" style="min-height:60px"></textarea><div class="row"><button class="small" onclick="importText(document.getElementById('sjson').value)">Cargar desde el texto</button></div></div>`:''}
     </div>`; }
   return `<div class="modal" onclick="if(event.target===this)closeModal()"><div class="box ${narrow?'narrow':''}"><div class="row" style="justify-content:flex-end"><button class="small ghost" onclick="closeModal()">Cerrar ✕</button></div>${inner}</div></div>`;
 }
@@ -1132,26 +1160,37 @@ function contentEditorHTML(tab){
     const bar = tab==='desempate' ? `<div class="bar"><span>Si hay empate al final, se hace una pregunta con respuesta numérica. Gana el equipo que más se acerca. Si vuelven a empatar, se pasa a la siguiente.</span></div>`
       : `<div class="bar"><div style="flex:1;min-width:0"><div style="font-weight:800">${esc(g.name)}</div><div class="muted" style="font-size:13px">${esc(g.desc)}</div></div>
          <label class="chk" style="font-size:13px;white-space:nowrap">${tab==='picapica'?'Tarjetas por equipo':'Se juegan'} <input type="number" min="1" max="${tab==='picapica'?10:Math.max(1,playable)}" value="${tab==='picapica'?cfgG.cards:Math.min(cfgG.items,Math.max(1,playable))}" onchange="setCfg('${tab}','${tab==='picapica'?'cards':'items'}',Math.max(1,+this.value))"> ${tab==='picapica'?'':'de '+playable}${tab==='queesesto'&&playable<list.length?` <span class="muted">(${list.length-playable} sin foto)</span>`:''}</label>
-         <span class="muted" style="font-size:12px;white-space:nowrap">${S.config.shuffle?'Al azar en cada show':'En este orden'}</span></div>`;
+         </div>`;
     const items = list.map((it,i)=>itemHTML(tab,it,i,list.length)).join("");
     main = bar+`<div class="items ${tab==='picapica'?'one':''}" style="margin:10px 0">${items||'<p class="muted">Todavía no hay nada acá.</p>'}</div><div class="row"><button class="primary" onclick="addItem('${tab}')">+ Agregar</button></div>`;
   }
   return `<h3>Juegos y preguntas</h3><div class="edGrid" style="margin-top:10px">${nav}<div style="min-width:0">${main}</div></div>`;
 }
+function itemSummary(k,it){
+  if(k==='picapica') return `<b>${esc(it.consigna||'(sin consigna)')}</b><span class="muted"> · ${(it.letras||[]).join(' ')}</span>`;
+  if(k==='descubrilo') return `<b>${esc(it.respuesta||'(sin respuesta)')}</b><span class="muted"> · ${esc((it.pistas||[])[0]||'')}</span>`;
+  if(k==='queesesto') return `${it.image?`<img src="${it.image}" alt="" class="thumb">`:`<span class="thumb ph">?</span>`}<b>${esc(it.respuesta||'(sin nombre)')}</b>${it.image?'':'<span class="tag">falta la foto</span>'}`;
+  if(k==='emojis') return `<span style="font-size:20px;letter-spacing:.1em">${esc(it.emojis||'')}</span><b>${esc(it.respuesta||'(sin película)')}</b>`;
+  return `<b>${esc(it.pregunta||'(sin pregunta)')}</b>${it.respuesta?`<span class="muted"> · ${esc(it.respuesta)}</span>`:'<span class="tag">sin respuesta</span>'}`;
+}
 function itemHTML(k,it,i,n){
-  const hd=(title)=>`<div class="hd"><span class="no">${i+1}</span><span class="sp">${title||''}</span>${i>0?`<button class="small ghost" title="Subir" onclick="moveItem('${k}',${i},-1)">↑</button>`:''}${i<n-1?`<button class="small ghost" title="Bajar" onclick="moveItem('${k}',${i},1)">↓</button>`:''}${confirmKey===k+':'+i?`<span class="row" style="font-size:12px">¿Borrar?<button class="small danger" onclick="delItem('${k}',${i})">Sí</button><button class="small ghost" onclick="confirmKey=null;render()">No</button></span>`:`<button class="small ghost" title="Borrar" onclick="confirmKey='${k}:${i}';render()">✕</button>`}</div>`;
+  const open = openItem===k+':'+i;
+  const tools = `${i>0?`<button class="small ghost" title="Subir" onclick="event.stopPropagation();moveItem('${k}',${i},-1)">↑</button>`:''}${i<n-1?`<button class="small ghost" title="Bajar" onclick="event.stopPropagation();moveItem('${k}',${i},1)">↓</button>`:''}${confirmKey===k+':'+i?`<span class="row" style="font-size:12px">¿Borrar?<button class="small danger" onclick="event.stopPropagation();delItem('${k}',${i})">Sí</button><button class="small ghost" onclick="event.stopPropagation();confirmKey=null;render()">No</button></span>`:`<button class="small ghost" title="Borrar" onclick="event.stopPropagation();confirmKey='${k}:${i}';render()">✕</button>`}`;
+  const head = `<div class="hd" onclick="openItem=${open?'null':`'${k}:${i}'`};render()"><span class="no">${i+1}</span><span class="sp sum">${itemSummary(k,it)}</span>${tools}<span class="chev">${open?'▴':'▾'}</span></div>`;
+  if(!open) return `<div class="item folded">${head}</div>`;
   const inp=(f,val,ph,cls='')=>`<input type="text" class="${cls}" value="${esc(val||'')}" placeholder="${ph}" onchange="setItem('${k}',${i},'${f}',this.value)">`;
-  if(k==='picapica') return `<div class="item">${hd()}<label class="f">Consigna${inp('consigna',it.consigna,'Cosas que no pueden faltar en una fiesta','lg')}</label>
+  let body='';
+  if(k==='picapica') body=`<label class="f">Consigna${inp('consigna',it.consigna,'Cosas que no pueden faltar en una fiesta','lg')}</label>
     <label class="f">Letras (separadas por coma)${inp('letras',(it.letras||[]).join(', '),'A, B, C, D, F, G, M, P')}</label>
-    <div class="f"><span>Palabras sugeridas (privadas, para quien conduce)</span><div class="grid4">${(it.letras||[]).map(L=>`<label><b>${L}</b><input type="text" value="${esc((it.sugeridas||{})[L]||'')}" onchange="setSug('${k}',${i},'${L}',this.value)"></label>`).join("")}</div></div></div>`;
-  if(k==='descubrilo') return `<div class="item">${hd()}<label class="f">Respuesta${inp('respuesta',it.respuesta,'Titanic','lg')}</label>
-    ${[0,1,2].map(p=>`<label class="f">Pista ${p+1} ${p===0?'(la más difícil)':p===2?'(la más obvia)':''}<input type="text" value="${esc((it.pistas||[])[p]||'')}" onchange="setPista('${k}',${i},${p},this.value)"></label>`).join("")}</div>`;
-  if(k==='queesesto') return `<div class="item photo ${it.image?'':'nophoto'}">${hd(it.image?'':'<span class="tag">falta la foto</span>')}<div style="display:grid;gap:6px;justify-items:center">${it.image?`<img src="${it.image}" alt="">`:`<div class="ph"><svg viewBox="0 0 64 64" width="56" height="56" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><circle cx="32" cy="22" r="11"/><path d="M10 56c3-12 11-18 22-18s19 6 22 18"/></svg></div>`}<label class="filebtn">${it.image?'Cambiar foto':'Subir foto'}<input type="file" accept="image/*" class="hidden" onchange="loadImage(${i},this.files[0])"></label></div>
-    <div class="stack"><label class="f">Nombre (así se muestra al revelar)${inp('respuesta',it.respuesta,'Brad Pitt','lg')}</label><p class="muted" style="margin:0;font-size:12px">Mejor una foto de la cara, de frente y bien iluminada. Se recorta al cuadrado automáticamente; los ojos y la boca se destapan al final.</p></div></div>`;
-  if(k==='emojis') return `<div class="item">${hd()}<label class="f">Emojis (separados por espacio)${inp('emojis',it.emojis,'🚢 🧊 💑','emo')}</label><div class="grid2"><label class="f">Película${inp('respuesta',it.respuesta,'Titanic','lg')}</label><label class="f">También vale (coma)${inp('acepta',(it.acepta||[]).join(', '),'The Notebook')}</label></div></div>`;
-  if(k==='final') return `<div class="item">${hd()}<label class="f">Pregunta${inp('pregunta',it.pregunta,'¿Dónde se conocieron?','lg')}</label><label class="f">Respuesta (confirmada con la novia)${inp('respuesta',it.respuesta,'')}</label></div>`;
-  if(k==='desempate') return `<div class="item">${hd()}<label class="f">Pregunta con respuesta numérica${inp('pregunta',it.pregunta,'¿Cuántos invitados hay en la boda?','lg')}</label><label class="f">Respuesta${inp('respuesta',it.respuesta,'120')}</label></div>`;
-  return '';
+    <div class="f"><span>Palabras sugeridas (privadas, para quien conduce)</span><div class="grid4">${(it.letras||[]).map(L=>`<label><b>${L}</b><input type="text" value="${esc((it.sugeridas||{})[L]||'')}" onchange="setSug('${k}',${i},'${L}',this.value)"></label>`).join("")}</div></div>`;
+  else if(k==='descubrilo') body=`<label class="f">Respuesta${inp('respuesta',it.respuesta,'Titanic','lg')}</label>
+    ${[0,1,2].map(p=>`<label class="f">Pista ${p+1} ${p===0?'(la más difícil)':p===2?'(la más obvia)':''}<input type="text" value="${esc((it.pistas||[])[p]||'')}" onchange="setPista('${k}',${i},${p},this.value)"></label>`).join("")}`;
+  else if(k==='queesesto') body=`<div class="item photo" style="padding:0;box-shadow:none"><div style="display:grid;gap:6px;justify-items:center">${it.image?`<img src="${it.image}" alt="">`:`<div class="ph"><svg viewBox="0 0 64 64" width="56" height="56" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><circle cx="32" cy="22" r="11"/><path d="M10 56c3-12 11-18 22-18s19 6 22 18"/></svg></div>`}<label class="filebtn">${it.image?'Cambiar foto':'Subir foto'}<input type="file" accept="image/*" class="hidden" onchange="loadImage(${i},this.files[0])"></label></div>
+    <div class="stack"><label class="f">Nombre (así se muestra al revelar)${inp('respuesta',it.respuesta,'Brad Pitt','lg')}</label><p class="muted" style="margin:0;font-size:12px">Mejor una foto de la cara, de frente y bien iluminada. Se recorta al cuadrado sola; los ojos y la boca se destapan al final.</p></div></div>`;
+  else if(k==='emojis') body=`<label class="f">Emojis (separados por espacio)${inp('emojis',it.emojis,'🚢 🧊 💑','emo')}</label><div class="grid2"><label class="f">Película${inp('respuesta',it.respuesta,'Titanic','lg')}</label><label class="f">También vale (coma)${inp('acepta',(it.acepta||[]).join(', '),'The Notebook')}</label></div>`;
+  else if(k==='final') body=`<label class="f">Pregunta${inp('pregunta',it.pregunta,'¿Dónde se conocieron?','lg')}</label><label class="f">Respuesta (confirmada con la novia)${inp('respuesta',it.respuesta,'')}</label>`;
+  else if(k==='desempate') body=`<label class="f">Pregunta con respuesta numérica${inp('pregunta',it.pregunta,'¿Cuántos invitados hay en la boda?','lg')}</label><label class="f">Respuesta${inp('respuesta',it.respuesta,'120')}</label>`;
+  return `<div class="item open">${head}${body}</div>`;
 }
 function setItem(k,i,f,v){
   commit(null, s=>{ const it=s.content[k][i]; if(f==='letras'){ it.letras=v.split(/[,\s]+/).map(x=>x.trim().toUpperCase()).filter(Boolean); it.sugeridas=it.sugeridas||{}; } else if(f==='acepta'){ it.acepta=v.split(',').map(x=>x.trim()).filter(Boolean); } else it[f]=v; }, {noUndo:true, silent:true});
@@ -1160,8 +1199,8 @@ function setSug(k,i,L,v){ commit(null, s=>{ const it=s.content[k][i]; it.sugerid
 function setPista(k,i,p,v){ commit(null, s=>{ const it=s.content[k][i]; it.pistas=it.pistas||['','','']; it.pistas[p]=v; }, {noUndo:true, silent:true}); }
 function addItem(k){
   const blank = {picapica:{consigna:'',letras:['A','B','C','D','E','F','G','H'],sugeridas:{}}, descubrilo:{respuesta:'',pistas:['','','']}, queesesto:null, emojis:{emojis:'',respuesta:'',acepta:[]}, final:{pregunta:'',respuesta:''}, desempate:{pregunta:'',respuesta:''}}[k];
-  if(!blank){ commit('Agrega chongo', s=>{ s.content.queesesto.push({respuesta:'',image:''}); }); return; }
-  commit('Agrega consigna en '+(GAMES[k]?GAMES[k].short:'Desempate'), s=>{ s.content[k].push(blank); reshuffle(s,k); });
+  if(!blank){ commit('Agrega chongo', s=>{ s.content.queesesto.push({respuesta:'',image:''}); }); openItem='queesesto:'+(S.content.queesesto.length-1); render(); return; }
+  commit('Agrega consigna en '+(GAMES[k]?GAMES[k].short:'Desempate'), s=>{ s.content[k].push(blank); reshuffle(s,k); }); openItem=k+':'+(S.content[k].length-1); render();
 }
 function delItem(k,i){ commit('Borra consigna '+(i+1)+' de '+(GAMES[k]?GAMES[k].short:'Desempate'), s=>{ s.content[k].splice(i,1); if(GAMES[k] && k!=='picapica' && s.config.games[k].items>s.content[k].length) s.config.games[k].items=Math.max(1,s.content[k].length); reshuffle(s,k); if(k!=='desempate' && s.g[k]){ s.g[k]= k==='picapica'? {card:0,letter:0,marks:{},cardDone:false} : ch(); } }); confirmKey=null; }
 function moveItem(k,i,d){ commit(null, s=>{ const a=s.content[k]; const j=i+d; if(j<0||j>=a.length) return; [a[i],a[j]]=[a[j],a[i]]; }, {noUndo:true, silent:true}); }
@@ -1202,7 +1241,7 @@ function loadImage(i,file){
       const cv=document.createElement("canvas"); cv.width=cv.height=Math.min(720,side); cv.getContext("2d").drawImage(img,sx,sy,side,side,0,0,cv.width,cv.height);
       const data=cv.toDataURL("image/jpeg",.8);
       commit("Foto cargada", s=>{ if(i<0){ s.content.queesesto.push({respuesta:"", image:data}); reshuffle(s,'queesesto'); } else { s.content.queesesto[i].image=data; delete s.content.queesesto[i].demo; } });
-      modal={type:"contenido",tab:"queesesto"}; render(); toast(i<0?"Foto agregada: escribí el nombre.":"Foto cargada");
+      modal={type:"contenido",tab:"queesesto"}; openItem = i<0 ? "queesesto:"+(S.content.queesesto.length-1) : "queesesto:"+i; render(); toast(i<0?"Foto agregada: escribí el nombre.":"Foto cargada");
     }; img.src=fr.result; };
   fr.readAsDataURL(file);
 }
@@ -1217,6 +1256,10 @@ function loadCover(file){
 function copyText(t){ navigator.clipboard.writeText(t).then(()=>toast("Copiado al portapapeles")).catch(()=>{ const ta=document.createElement("textarea"); ta.value=t; document.body.appendChild(ta); ta.select(); toast("Seleccioná y copiá el texto (Ctrl+C)"); }); }
 function importFile(f){ if(!f) return; const fr=new FileReader(); fr.onload=()=>importText(fr.result); fr.readAsText(f); }
 function importText(t){ try{ const s=JSON.parse(t); if(!s||s.v!==1||!s.config||!s.content) throw new Error("formato inválido"); undoStack.push({label:"importar",snap:clone(S)}); S=migrate(s); S.history.unshift(ts()+" · estado importado"); save(); broadcast(); modal=null; render(); toast("Estado cargado"); }catch(e){ toast("No se pudo cargar: "+e.message); } }
+function restoreContent(){
+  commit('Restaura las preguntas originales', s=>{ const fresh=clone(DEFAULT_CONTENT); const old=s.content.queesesto||[]; fresh.queesesto.forEach(ch=>{ const m=old.find(o=>o.respuesta.trim().toLowerCase()===ch.respuesta.toLowerCase() && o.image); if(m) ch.image=m.image; }); old.filter(o=>o.image && !fresh.queesesto.some(ch=>ch.respuesta.toLowerCase()===o.respuesta.trim().toLowerCase())).forEach(o=>fresh.queesesto.push(o)); s.content=fresh; Object.keys(GAMES).forEach(g=>{ reshuffle(s,g); if(g!=='picapica' && s.config.games[g].items>(fresh[g]||[]).length) s.config.games[g].items=Math.max(1,(fresh[g]||[]).length); }); s.config.games.emojis.items=Math.min(12,fresh.emojis.length); s.config.games.descubrilo.items=Math.min(6,fresh.descubrilo.length); });
+  confirmKey=null; toast('Preguntas restauradas');
+}
 function resetAll(){ const content=S.content, config=S.config; S=initialState(); S.content=content; S.config=config; undoStack=[]; confirmKey=null; save(); broadcast(); modal=null; render(); toast("Listo: puntajes en cero y juegos sin empezar"); }
 let toastT=null; function toast(m){ let el=$("#toast"); if(!el){ el=document.createElement("div"); el.id="toast"; el.className="toast"; document.body.appendChild(el);} el.textContent=m; el.style.display="block"; clearTimeout(toastT); toastT=setTimeout(()=>el.style.display="none",2200); }
 
