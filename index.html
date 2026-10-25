@@ -165,7 +165,7 @@ h3{font-size:15px;font-weight:700}
 .timerBar .st{font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:800;padding:3px 8px;border-radius:999px;background:var(--pink2);color:var(--muted)}
 .timerBar .st.run{background:#e4f6ee;color:var(--ok)}
 .timerBar .st.done{background:#fde0e4;color:var(--red)}
-.last{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);flex-wrap:wrap}
+.lastAct{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);flex-wrap:wrap}
 .hist{font-size:12px;color:var(--muted);max-height:120px;overflow:auto;margin-top:6px}
 .modal{position:fixed;inset:0;background:rgba(29,11,18,.5);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}
 .modal .box{outline:none;animation:modalIn .22s cubic-bezier(.23,1,.32,1) both;background:var(--bg);border-radius:18px;padding:18px;max-width:1200px;width:100%;max-height:92vh;overflow-y:auto;overflow-x:hidden}
@@ -614,15 +614,15 @@ const DEFAULT_CONTENT = {
 
 const GAMES = {
   picapica:  { name:"Pica Pica", short:"Pica Pica", desc:"Una consigna, ocho letras y cero tiempo para pensar.",
-    intro:(sec)=>({ objetivo:"Decir una palabra por letra que encaje con la consigna.", como:"Les toca una tarjeta con una consigna y ocho letras. Van letra por letra; si una se traba, dicen «paso» y siguen con la próxima.", tiempo:`${sec} segundos por tarjeta.`, puntos:"1 punto por cada palabra válida." }) },
+    intro:(sec)=>({ objetivo:"Decir una palabra por letra que encaje con la consigna.", como:"Una tarjeta, una consigna y ocho letras. Dicen una palabra por letra, en orden. Si una no sale, «paso» y siguen; al final vuelven a las que pasaron, mientras quede tiempo.", tiempo:`${sec} segundos por tarjeta.`, puntos:"1 punto por cada palabra válida." }) },
   descubrilo:{ name:"Descubrilo", short:"Descubrilo", desc:"Tres pistas. Cuanto antes la saquen, más vale.",
-    intro:(sec)=>({ objetivo:"Adivinar de quién o de qué estamos hablando.", como:"Hasta tres pistas, de la más difícil a la más obvia. Después de cada pista, el equipo en turno arriesga una sola respuesta. Si falla, le toca al otro.", tiempo:`${sec} segundos para arriesgar.`, puntos:"Con la pista 1 vale 3, con la 2 vale 2, con la 3 vale 1." }) },
-  queesesto: { name:"¿Quién es el chongo?", short:"El chongo", hdr:"¿Quién es el chongo?", desc:"Una cara tapada que se destapa de a poco. ¿Lo reconocés?",
-    intro:(sec)=>({ objetivo:"Reconocer al famoso de la foto.", como:"La cara está tapada con 16 casilleros y se destapa en cuatro etapas, los ojos y la boca al final. En cada etapa, una sola respuesta por equipo. Si fallan, le toca al otro.", tiempo:`${sec} segundos por chongo.`, puntos:"4 puntos en la etapa 1, después 3, 2 y 1." }) },
+    intro:(sec)=>({ objetivo:"Adivinar de quién o de qué estamos hablando.", como:"Tres pistas, de la más difícil a la más obvia. Después de cada pista, el equipo en turno arriesga una respuesta. Si falla, rebota al otro equipo con la misma pista.", tiempo:`${sec} segundos para arriesgar.`, puntos:"Pista 1: 3 puntos · pista 2: 2 · pista 3: 1." }) },
+  queesesto: { name:"¿Quién es el chongo?", short:"El chongo", hdr:"¿Quién es el chongo?", desc:"Una cara tapada que se destapa de a poco y al azar. ¿Lo reconocés?",
+    intro:(sec)=>({ objetivo:"Reconocer al famoso de la foto.", como:"Una cara tapada con 16 casilleros que se destapan de a cuatro, al azar, en cuatro etapas. En cada etapa, una respuesta por equipo. Si fallan, rebota al otro.", tiempo:`${sec} segundos por chongo.`, puntos:"Etapa 1: 4 puntos · etapa 2: 3 · etapa 3: 2 · etapa 4: 1." }) },
   emojis:    { name:"Adiviná la peli con emojis", short:"Emojis", hdr:"La peli con emojis", desc:"La peli está ahí, escondida en los emojis.",
-    intro:(sec)=>({ objetivo:"Adivinar la película que esconden los emojis.", como:"Una peli por pantalla y una sola respuesta por equipo. Si fallan, rebota al otro equipo.", tiempo:`${sec} segundos por película.`, puntos:"1 punto por acierto. Vale en castellano o en inglés." }) },
+    intro:(sec)=>({ objetivo:"Adivinar la película que esconden los emojis.", como:"Una peli por pantalla, escondida en emojis. Una respuesta por equipo; si fallan, rebota al otro.", tiempo:`${sec} segundos por película.`, puntos:"1 punto por acierto. Vale en castellano o en inglés." }) },
   final:     { name:"Gran final: la novia es la protagonista", short:"Gran final", hdr:"Gran final", desc:"Todo lo que (creen que) saben de Agustina y Leo.",
-    intro:(sec)=>({ objetivo:"Demostrar cuánto conocen a Agustina y a Leo.", como:"Preguntas sobre la pareja, confirmadas con la novia antes del juego. Responde el equipo en turno.", tiempo:`${sec} segundos por pregunta.`, puntos:"2 puntos por acierto. Agustina no sopla." }) }
+    intro:(sec)=>({ objetivo:"Demostrar cuánto conocen a Agustina y a Leo.", como:"Preguntas sobre Agustina y Leo, con respuestas confirmadas por la novia. Responde el equipo en turno; si falla, rebota al otro.", tiempo:`${sec} segundos por pregunta.`, puntos:"2 puntos por acierto. Agustina no sopla." }) }
 };
 const SAY = {
   ok:   ["¡Bien ahí!","¡Eso!","¡Tremendas!","¡Golazo!","¡Sí, señora!"],
@@ -888,6 +888,8 @@ function pcMark(letter, mark){
     const idx = card.letras.indexOf(letter);
     let nxt = card.letras.findIndex((L,i)=>i>idx && !m[L]);
     if(nxt<0) nxt = card.letras.findIndex(L=>!m[L]);
+    // segunda vuelta: las letras que pasaron, en el mismo orden, mientras quede tiempo
+    if(nxt<0 && !s.timer.expired){ nxt = card.letras.findIndex((L,i)=>i>idx && m[L]==='pass'); if(nxt<0) nxt = card.letras.findIndex(L=>m[L]==='pass'); }
     s.g.picapica.letter = nxt<0 ? idx : nxt;
     s.flash = {k:mark, t:Date.now(), text: mark==='ok'? say('ok',Date.now()/1000) : mark==='bad'? say('bad',Date.now()/1000) : 'Paso', team: mark==='ok'? tid : null};
     if(nxt<0){ s.g.picapica.cardDone=true; (s.g.picapica.closed=s.g.picapica.closed||{})[s.g.picapica.card]=true; stopTimer(s.timer); }
@@ -1113,10 +1115,10 @@ function stageHTML(s){
   }
   return wrap(`${hdrHTML(s,GAMES[k].hdr||GAMES[k].name,true)}${body}${scoreboardHTML(s)}`);
 }
-function tileOrder(seed){ // estable por ítem: primero el borde (menos información), el centro al final
-  const edge=[0,1,2,3,4,7,8,11,12,13,14,15], mid=[5,6,9,10]; let x=(seed+7)*2654435761>>>0;
+function tileOrder(seed){ // estable por chongo, al azar: cada foto se destapa distinto
+  let x=(seed+7)*2654435761>>>0;
   const sh=a=>{ for(let i=a.length-1;i>0;i--){ x=(x*1664525+1013904223)>>>0; const j=x%(i+1); [a[i],a[j]]=[a[j],a[i]]; } return a; };
-  return [...sh(edge), ...sh(mid)];
+  return sh([...Array(16).keys()]);
 }
 function burstFx(canvas){
   if(canvas._on) return; canvas._on=true; if(matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -1159,7 +1161,7 @@ function panelHTML(){
           <div class="row between"><span class="sec">Puntajes</span><span class="muted" style="font-size:12px">Tocá el número para escribirlo</span></div>
           <div class="scoreRow">${teams().map(t=>`<div class="teamChip ${currentTurn()===t.id?'turn':''}" style="${tstyle(t)}"><span class="n">${esc(t.name)}</span>
             <span class="adj"><button onclick="addScore('${t.id}',-1)" title="Restar 1" aria-label="Restar 1">−1</button></span><span class="s" role="button" tabindex="0" title="Escribir el puntaje" onclick="promptScore('${t.id}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();promptScore('${t.id}')}">${S.scores[t.id]||0}</span><span class="adj"><button onclick="addScore('${t.id}',1)" title="Sumar 1" aria-label="Sumar 1">+1</button></span></div>`).join("")}</div>
-          <div class="last"><span class="sec">Última acción</span><span>${last?esc(last.slice(8)):'—'}</span><button class="small ghost" onclick="undo()" ${undoStack.length?'':'disabled'}>↶ Deshacer <kbd>Z</kbd></button><button class="small ghost" onclick="this.nextElementSibling.classList.toggle('hidden')">Historial ▾</button><div class="hist hidden" style="flex-basis:100%">${S.history.slice(0,25).map(h=>`<div>${esc(h)}</div>`).join("")||'—'}</div></div>
+          <div class="lastAct"><span class="sec">Última acción</span><span>${last?esc(last.slice(8)):'—'}</span><button class="small ghost" onclick="undo()" ${undoStack.length?'':'disabled'}>↶ Deshacer <kbd>Z</kbd></button><button class="small ghost" onclick="this.nextElementSibling.classList.toggle('hidden')">Historial ▾</button><div class="hist hidden" style="flex-basis:100%">${S.history.slice(0,25).map(h=>`<div>${esc(h)}</div>`).join("")||'—'}</div></div>
         </div>`}
     </div>
     <div id="modalRoot"></div></div>`;
@@ -1414,7 +1416,7 @@ function itemHTML(k,it,i,n){
   else if(k==='descubrilo') body=`<label class="f">Respuesta${inp('respuesta',it.respuesta,'Titanic','lg')}</label>
     ${[0,1,2].map(p=>`<label class="f">Pista ${p+1} ${p===0?'(la más difícil)':p===2?'(la más obvia)':''}<input type="text" value="${esc((it.pistas||[])[p]||'')}" onchange="setPista('${k}',${i},${p},this.value)"></label>`).join("")}`;
   else if(k==='queesesto') body=`<div class="item photo" style="padding:0;box-shadow:none"><div style="display:grid;gap:6px;justify-items:center">${hasPhoto(it)?`<img src="${photoSrc(it.image)}" alt="">`:`<div class="ph"><svg viewBox="0 0 64 64" width="56" height="56" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><circle cx="32" cy="22" r="11"/><path d="M10 56c3-12 11-18 22-18s19 6 22 18"/></svg></div>`}<label class="filebtn">${hasPhoto(it)?'Cambiar foto':'Subir foto'}<input type="file" accept="image/*" class="hidden" onchange="loadImage(${i},this.files[0])"></label></div>
-    <div class="stack"><label class="f">Nombre (así se muestra al revelar)${inp('respuesta',it.respuesta,'Brad Pitt','lg')}</label><p class="muted" style="margin:0;font-size:12px">Mejor una foto de la cara, de frente y con buena luz. Se recorta sola al cuadrado; los ojos y la boca se destapan al final.</p></div></div>`;
+    <div class="stack"><label class="f">Nombre (así se muestra al revelar)${inp('respuesta',it.respuesta,'Brad Pitt','lg')}</label><p class="muted" style="margin:0;font-size:12px">Mejor una foto de la cara, de frente y con buena luz. Se recorta sola al cuadrado y se destapa en un orden distinto para cada chongo.</p></div></div>`;
   else if(k==='emojis') body=`<label class="f">Emojis (separados por espacio)${inp('emojis',it.emojis,'🚢 🧊 💑','emo')}</label><div class="grid2"><label class="f">Película${inp('respuesta',it.respuesta,'Titanic','lg')}</label><label class="f">También vale (coma)${inp('acepta',(it.acepta||[]).join(', '),'The Notebook')}</label></div>`;
   else if(k==='final') body=`<label class="f">Pregunta${inp('pregunta',it.pregunta,'¿Dónde se conocieron?','lg')}</label><label class="f">Respuesta (confirmada con la novia)${inp('respuesta',it.respuesta,'')}</label>`;
   else if(k==='desempate') body=`<label class="f">Pregunta con respuesta numérica${inp('pregunta',it.pregunta,'¿Cuántos invitados hay en la boda?','lg')}</label><label class="f">Respuesta${inp('respuesta',it.respuesta,'120')}</label>`;
