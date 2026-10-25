@@ -1115,10 +1115,11 @@ function stageHTML(s){
   }
   return wrap(`${hdrHTML(s,GAMES[k].hdr||GAMES[k].name,true)}${body}${scoreboardHTML(s)}`);
 }
-function tileOrder(seed){ // estable por chongo, al azar: cada foto se destapa distinto
+function tileOrder(seed){ // estable por chongo y distinto en cada uno: etapa 1 solo borde; etapas 2 y 3 suman un casillero del centro cada una; etapa 4 el resto
   let x=(seed+7)*2654435761>>>0;
   const sh=a=>{ for(let i=a.length-1;i>0;i--){ x=(x*1664525+1013904223)>>>0; const j=x%(i+1); [a[i],a[j]]=[a[j],a[i]]; } return a; };
-  return sh([...Array(16).keys()]);
+  const outer=sh([0,1,2,3,4,7,8,11,12,13,14,15]), center=sh([5,6,9,10]);
+  return [ ...outer.slice(0,4), ...outer.slice(4,7), center[0], ...outer.slice(7,10), center[1], ...outer.slice(10,12), center[2], center[3] ];
 }
 function burstFx(canvas){
   if(canvas._on) return; canvas._on=true; if(matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -1220,7 +1221,7 @@ function controlsHTML(k){
   return chControls(k);
 }
 function teamRowHTML(t,i,removable){
-  return `<div class="teamRow" style="${tstyle(t)}"><div class="swatches">${TEAM_COLORS.map((col,j)=>`<button class="${t.color.toLowerCase()===col?'sel':''}" style="background:${col}" title="${TEAM_COLOR_NAMES[j]}" onclick="setTeam(${i},'color','${col}')"></button>`).join("")}<label title="Otro color"><input type="color" aria-label="Otro color" value="${t.color}" oninput="setTeam(${i},'color',this.value)"></label></div><input type="text" id="tn${i}" value="${esc(t.name)}" onchange="setTeam(${i},'name',this.value)" maxlength="24" placeholder="Nombre del equipo">${removable?`<button class="small ghost" title="Quitar equipo" aria-label="Quitar equipo" onclick="removeTeam(${i})">✕</button>`:'<span style="width:34px"></span>'}</div>`;
+  return `<div class="teamRow" style="${tstyle(t)}"><div class="swatches">${TEAM_COLORS.map((col,j)=>`<button class="${t.color.toLowerCase()===col?'sel':''}" style="background:${col}" title="${TEAM_COLOR_NAMES[j]}" onclick="setTeam(${i},'color','${col}')"></button>`).join("")}<label title="Otro color"><input type="color" aria-label="Otro color" value="${t.color}" oninput="setTeamColorLive(${i},this)" onchange="setTeam(${i},'color',this.value)"></label></div><input type="text" id="tn${i}" value="${esc(t.name)}" onchange="setTeam(${i},'name',this.value)" maxlength="24" placeholder="Nombre del equipo">${removable?`<button class="small ghost" title="Quitar equipo" aria-label="Quitar equipo" onclick="removeTeam(${i})">✕</button>`:'<span style="width:34px"></span>'}</div>`;
 }
 function setupChecks(){
   const c=S.config, names=c.teams.map(t=>(t.name||'').trim());
@@ -1316,9 +1317,14 @@ function chPointsAt(k,rev){ const p=cfg(k).pts; return Array.isArray(p)? p[Math.
 /* ---------- setup helpers ---------- */
 function teamEditHTML(t,i,removable){
   return `<div class="teamEdit" style="${tstyle(t)}"><div class="nm"><input type="text" id="tn${i}" value="${esc(t.name)}" onchange="setTeam(${i},'name',this.value)" maxlength="24">${removable?`<button class="small danger" onclick="removeTeam(${i})" title="Quitar equipo" aria-label="Quitar equipo">✕</button>`:''}</div>
-    <div class="swatches">${TEAM_COLORS.map((col,j)=>`<button class="${t.color.toLowerCase()===col?'sel':''}" style="background:${col}" title="${TEAM_COLOR_NAMES[j]}" onclick="setTeam(${i},'color','${col}')"></button>`).join("")}<label title="Otro color"><input type="color" aria-label="Otro color" value="${t.color}" oninput="setTeam(${i},'color',this.value)"></label><span class="muted" style="font-size:12px">${TEAM_COLOR_NAMES[TEAM_COLORS.indexOf(t.color.toLowerCase())]||'Personalizado'}</span></div></div>`;
+    <div class="swatches">${TEAM_COLORS.map((col,j)=>`<button class="${t.color.toLowerCase()===col?'sel':''}" style="background:${col}" title="${TEAM_COLOR_NAMES[j]}" onclick="setTeam(${i},'color','${col}')"></button>`).join("")}<label title="Otro color"><input type="color" aria-label="Otro color" value="${t.color}" oninput="setTeamColorLive(${i},this)" onchange="setTeam(${i},'color',this.value)"></label><span class="muted" style="font-size:12px">${TEAM_COLOR_NAMES[TEAM_COLORS.indexOf(t.color.toLowerCase())]||'Personalizado'}</span></div></div>`;
 }
 function setTeam(i,f,v){ commit(null,s=>{ s.config.teams[i][f]=v; },{noUndo:true}); }
+function setTeamColorLive(i,input){ // mientras el selector nativo está abierto no se redibuja el panel (lo cerraría); se guarda y se pinta en el lugar
+  const v=input.value; S.config.teams[i].color=v; save(); broadcast();
+  const row=input.closest('.teamRow,.teamEdit'); if(row){ row.style.setProperty('--tc',v); row.style.setProperty('--tk',ink(v)); row.style.setProperty('--tt',textTone(v)); row.querySelectorAll('.swatches button').forEach(b=>b.classList.remove('sel')); }
+  const pv=document.querySelector('.preview .stage'); if(pv){ /* la preview se actualiza al cerrar el selector */ }
+}
 function addTeam(){ commit("Nuevo equipo",s=>{ const n=s.config.teams.length; const id="t"+(Date.now()%100000); const used=s.config.teams.map(t=>t.color.toLowerCase()); const col=TEAM_COLORS.find(c=>!used.includes(c))||TEAM_COLORS[n%TEAM_COLORS.length]; s.config.teams.push({id,name:"Equipo "+(n+1),color:col}); s.scores[id]=0; }); }
 function removeTeam(i){ commit("Quita equipo",s=>{ const [t]=s.config.teams.splice(i,1); delete s.scores[t.id]; }); }
 function toggleGame(g,on){ commit(null,s=>{ const all=Object.keys(GAMES); s.config.order = all.filter(x=> x===g? on : s.config.order.includes(x)); },{noUndo:true}); }
